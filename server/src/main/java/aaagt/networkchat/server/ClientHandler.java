@@ -70,6 +70,7 @@ public class ClientHandler extends Thread {
         System.out.print("sending: " + text);
         writeMessage(text);
         out.print(text);
+        out.flush();
     }
 
     public void close() {

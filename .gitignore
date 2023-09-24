@@ -68,3 +68,4 @@ bin/
 hs_err_pid*
 replay_pid*
 /chat_history.txt
+/client_chat_history.txt
