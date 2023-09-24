@@ -1,6 +1,7 @@
 package aaagt.networkchat.server;
 
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -11,6 +12,7 @@ import java.text.SimpleDateFormat;
 public class ClientHandler extends Thread {
 
     private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final String HISTORY_FILE_NAME = "chat_history.txt";
 
     final Socket socket;
     final Server server;
@@ -24,6 +26,14 @@ public class ClientHandler extends Thread {
         this.server = server;
         out = new PrintWriter(socket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    }
+
+    private static void writeMessage(String message) {
+        try (var fileWriter = new FileWriter(HISTORY_FILE_NAME, true)) {
+            fileWriter.write(message);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -56,9 +66,10 @@ public class ClientHandler extends Thread {
 
     public void sendMessage(String message) {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        String text = String.format("%s [%s] %s", TIME_FORMAT.format(timestamp), name, message);
-        System.out.println("sending: " + text);
-        out.println(text);
+        String text = String.format("%s [%s] %s\n", TIME_FORMAT.format(timestamp), name, message);
+        System.out.print("sending: " + text);
+        writeMessage(text);
+        out.print(text);
     }
 
     public void close() {
