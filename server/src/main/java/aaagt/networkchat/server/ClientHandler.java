@@ -5,8 +5,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 public class ClientHandler extends Thread {
+
+    private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     final Socket socket;
     final Server server;
@@ -41,7 +45,6 @@ public class ClientHandler extends Thread {
 
         sendMessage("Write your name");
         name = in.readLine();
-        //name = "in.readLine()";
 
         server.sendMessageToAllClients("%s connected to this chat".formatted(name));
 
@@ -52,13 +55,16 @@ public class ClientHandler extends Thread {
     }
 
     public void sendMessage(String message) {
-        System.out.println("sending: " + message);
-        out.println(message);
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        String text = String.format("%s [%s] %s", TIME_FORMAT.format(timestamp), name, message);
+        System.out.println("sending: " + text);
+        out.println(text);
     }
 
     public void close() {
         server.removeClient(this);
         server.sendMessageToAllClients("%s disconnected".formatted(name));
+        System.out.printf("%s disconnected\n", name);
         try {
             in.close();
         } catch (IOException e) {

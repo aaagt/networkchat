@@ -25,15 +25,22 @@ public class ReadThread extends Thread {
     public void run() {
         while (true) {
             try {
-                String response = reader.readLine();
-                System.out.println(response);
-                Thread.sleep(1000);
+                if (reader.ready()) {
+                    String response = reader.readLine();
+                    System.out.println(response);
+                }
+                if (Thread.interrupted()) {
+                    // We've been interrupted: no more crunching.
+                    return;
+                }
+                Thread.sleep(100);
             } catch (IOException ex) {
                 System.out.println("Error reading from server: " + ex.getMessage());
                 ex.printStackTrace();
                 break;
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                System.err.println(e);
+                return;
             }
         }
     }
